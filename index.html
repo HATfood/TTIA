@@ -5,37 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TTIA.ir Push Notifications</title>
     
-    <!-- This is CRUCIAL for making your site "installable" on iOS -->
     <link rel="manifest" href="/manifest.json">
-    
-    <!-- A simple stylesheet to make it look nice -->
     <link rel="stylesheet" href="style.css">
 
-    <!-- The OneSignal script you were given. "defer" is important. -->
+    <!-- OneSignal SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
-      // This makes sure the OneSignal code runs after the SDK is loaded
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
-        // Initialize OneSignal with your App ID
+        
         await OneSignal.init({
-          appId: "a1ca9082-d833-4630-972e-e83578a1ef79", // Your App ID
-          // We set this to false so we can control WHEN to ask for permission
-          // This is essential for a good user experience and for iOS.
-          promptOptions: {
-            autoPrompt: false, 
-          },
-          // This allows users to re-subscribe if they clear their cache
+          appId: "a1ca9082-d833-4630-972e-e83578a1ef79",
           autoResubscribe: true,
-          // This part handles the case where a user is already subscribed on a different subdomain
-          allowLocalhostAsSecureOrigin: true, // Good for local testing
+          
+          // === THIS IS THE KEY CHANGE ===
+          // We are explicitly telling OneSignal to prepare the slidedown prompt,
+          // but NOT to show it automatically. This makes our button click more reliable.
+          promptOptions: {
+              slidedown: {
+                  enabled: true,    // We want to use the slidedown prompt
+                  autoPrompt: false // But we DON'T want it to show automatically
+              }
+          },
         });
         
-        // Run our function to update the buttons and status on page load
         updateUI(); 
       });
 
-      // This function checks the user's status and updates the page content
       async function updateUI() {
           const permission = await OneSignal.getNotificationPermission();
           const isSubscribed = await OneSignal.isPushNotificationsEnabled();
@@ -44,6 +40,9 @@
           const subscribeButton = document.getElementById('subscribe-button');
           const unsubscribeButton = document.getElementById('unsubscribe-button');
           
+          // Disable the button until we know the status to prevent errors
+          subscribeButton.disabled = true;
+
           if (permission === 'denied') {
               statusDiv.textContent = "You have blocked notifications. Please enable them in your browser settings.";
               subscribeButton.style.display = 'none';
@@ -56,21 +55,17 @@
               statusDiv.textContent = "Click the button to subscribe.";
               subscribeButton.style.display = 'inline-block';
               unsubscribeButton.style.display = 'none';
+              subscribeButton.disabled = false; // Re-enable the button
           }
       }
 
-      // This function is called when the user clicks the "Subscribe" button
       async function onSubscribeButtonClick() {
-          // This shows OneSignal's user-friendly slidedown prompt,
-          // which is better than the native browser prompt.
+          // This will now reliably show the slidedown prompt we configured above.
           await OneSignal.showSlidedownPrompt();
-          // After the prompt, update the UI again
           updateUI();
       }
       
-      // This function is called when the user clicks the "Unsubscribe" button
       async function onUnsubscribeButtonClick() {
-          // This disables push notifications for the user
           await OneSignal.setSubscription(false);
           updateUI();
       }
@@ -83,14 +78,12 @@
         <h1>Welcome to TTIA.ir</h1>
         <p>Get the latest updates delivered right to your screen.</p>
 
-        <!-- Instructions specifically for iPhone/iPad users -->
         <div id="ios-instructions">
             <strong>For iPhone/iPad Users:</strong> To enable notifications, you must first add this site to your Home Screen. Tap the 'Share' icon and then 'Add to Home Screen'.
         </div>
 
         <div class="button-container">
-            <!-- We call our functions from the button's onclick event -->
-            <button id="subscribe-button" onclick="onSubscribeButtonClick()">Subscribe to Notifications</button>
+            <button id="subscribe-button" onclick="onSubscribeButtonClick()" disabled>Loading...</button>
             <button id="unsubscribe-button" onclick="onUnsubscribeButtonClick()" style="display: none;">Unsubscribe</button>
         </div>
 
