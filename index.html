@@ -232,7 +232,13 @@
     });
   });
 </script>
-  
+  <button id="enable-push">فعالسازی اعلان‌ها</button>
+<script>
+  const btn = document.getElementById('enable-push');
+  btn.addEventListener('click', async () => {
+    await OneSignal.Notifications.requestPermission(); // v16
+  });
+</script>
 </head>
 <body>
 
