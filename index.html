@@ -3,16 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Push Notifications - ttia.ir</title>
-    
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#000000">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="ttia.ir">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json">
+    <title>Android Push Test - ttia.ir</title>
     
     <!-- OneSignal SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -25,21 +16,17 @@
             padding: 20px;
             line-height: 1.6;
         }
-        .notification-section {
-            background: #f5f5f5;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
         .btn {
             background: #007bff;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 15px 30px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
             margin: 10px 5px;
+            width: 100%;
+            box-sizing: border-box;
         }
         .btn:hover {
             background: #0056b3;
@@ -49,9 +36,10 @@
             cursor: not-allowed;
         }
         .status {
-            padding: 10px;
+            padding: 15px;
             border-radius: 4px;
-            margin: 10px 0;
+            margin: 15px 0;
+            font-size: 16px;
         }
         .status.success {
             background: #d4edda;
@@ -68,207 +56,189 @@
             color: #0c5460;
             border: 1px solid #bee5eb;
         }
-        .debug-info {
+        .log {
             background: #f8f9fa;
             border: 1px solid #dee2e6;
             border-radius: 4px;
-            padding: 15px;
-            margin: 15px 0;
+            padding: 10px;
+            margin: 10px 0;
             font-family: 'Courier New', monospace;
-            font-size: 14px;
-        }
-        .ios-instructions {
-            background: #e7f3ff;
-            border-left: 4px solid #007bff;
-            padding: 15px;
-            margin: 15px 0;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
         }
     </style>
 </head>
 <body>
-    <h1>Push Notifications Setup - ttia.ir</h1>
+    <h1>🔔 Android Push Notification Test</h1>
     
-    <div class="notification-section">
-        <h2>Notification Status</h2>
-        <div id="status-container"></div>
-        <button id="subscribe-btn" class="btn">Enable Notifications</button>
-        <button id="test-btn" class="btn" disabled>Send Test Notification</button>
+    <div id="status-container">
+        <div class="status info">Ready to test notifications...</div>
     </div>
     
-    <div class="ios-instructions">
-        <h3>📱 iOS Users (Safari)</h3>
-        <p><strong>Important:</strong> For iOS push notifications to work:</p>
-        <ol>
-            <li>You need iOS 16.4 or later</li>
-            <li>Use Safari browser</li>
-            <li>Tap the share button (⬆️) and select "Add to Home Screen"</li>
-            <li>Open the app from your home screen (not Safari)</li>
-            <li>Then try enabling notifications</li>
-        </ol>
-    </div>
+    <button id="test-native-btn" class="btn">1. Test Native Browser API</button>
+    <button id="init-onesignal-btn" class="btn">2. Initialize OneSignal</button>
+    <button id="request-permission-btn" class="btn" disabled>3. Request Permission</button>
+    <button id="subscribe-btn" class="btn" disabled>4. Subscribe to OneSignal</button>
     
-    <div class="notification-section">
-        <h2>Debug Information</h2>
-        <div id="debug-info" class="debug-info"></div>
-    </div>
+    <h3>Debug Log:</h3>
+    <div id="log-container" class="log"></div>
     
     <script>
         let OneSignal;
-        let isSubscribed = false;
+        let logContainer = document.getElementById('log-container');
+        let statusContainer = document.getElementById('status-container');
         
-        // Initialize OneSignal
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        OneSignalDeferred.push(async function(OneSignalInstance) {
-            OneSignal = OneSignalInstance;
-            
-            await OneSignal.init({
-                appId: "a1ca9082-d833-4630-972e-e83578a1ef79",
-                safari_web_id: "web.onesignal.auto.YOUR_SAFARI_WEB_ID", // You'll need to get this from OneSignal
-                allowLocalhostAsSecureOrigin: true,
-            });
-            
-            updateStatus();
-            updateDebugInfo();
-        });
+        function log(message) {
+            console.log(message);
+            logContainer.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
         
-        // Status management
         function showStatus(message, type = 'info') {
-            const container = document.getElementById('status-container');
-            const statusDiv = document.createElement('div');
-            statusDiv.className = `status ${type}`;
-            statusDiv.textContent = message;
-            container.innerHTML = '';
-            container.appendChild(statusDiv);
+            statusContainer.innerHTML = `<div class="status ${type}">${message}</div>`;
         }
         
-        // Update subscription status
-        async function updateStatus() {
-            if (!OneSignal) {
-                showStatus('OneSignal is loading...', 'info');
+        // Step 1: Test native browser API
+        document.getElementById('test-native-btn').addEventListener('click', async function() {
+            log('Testing native browser APIs...');
+            
+            // Check basic support
+            log('Push API supported: ' + !!window.PushManager);
+            log('Service Worker supported: ' + !!navigator.serviceWorker);
+            log('Notification API supported: ' + !!window.Notification);
+            log('Current permission: ' + Notification.permission);
+            
+            if (!window.PushManager || !navigator.serviceWorker || !window.Notification) {
+                showStatus('❌ Browser does not support required APIs', 'error');
                 return;
             }
             
             try {
-                const isPushSupported = OneSignal.Notifications.isPushSupported();
-                const permission = await OneSignal.Notifications.getPermissionAsync();
-                isSubscribed = await OneSignal.User.PushSubscription.getOptedInAsync();
-                
-                if (!isPushSupported) {
-                    showStatus('Push notifications are not supported on this device/browser', 'error');
-                    return;
-                }
-                
-                if (permission === 'granted' && isSubscribed) {
-                    showStatus('✅ Notifications are enabled!', 'success');
-                    document.getElementById('subscribe-btn').textContent = 'Notifications Enabled';
-                    document.getElementById('subscribe-btn').disabled = true;
-                    document.getElementById('test-btn').disabled = false;
-                } else if (permission === 'denied') {
-                    showStatus('❌ Notifications are blocked. Please enable them in your browser settings.', 'error');
-                } else {
-                    showStatus('🔔 Click "Enable Notifications" to get started', 'info');
-                }
-            } catch (error) {
-                showStatus(`Error checking status: ${error.message}`, 'error');
-            }
-        }
-        
-        // Subscribe to notifications
-        async function subscribeToNotifications() {
-            if (!OneSignal) {
-                showStatus('OneSignal is not ready yet', 'error');
-                return;
-            }
-            
-            try {
-                showStatus('Requesting notification permission...', 'info');
-                
-                const permission = await OneSignal.Notifications.requestPermissionAsync();
+                // Test direct notification permission request
+                const permission = await Notification.requestPermission();
+                log('Native permission result: ' + permission);
                 
                 if (permission === 'granted') {
-                    // User granted permission
-                    showStatus('Permission granted! Setting up subscription...', 'info');
+                    showStatus('✅ Native browser permission granted!', 'success');
+                    document.getElementById('init-onesignal-btn').disabled = false;
                     
-                    // Opt the user in
-                    await OneSignal.User.PushSubscription.optInAsync();
-                    
-                    showStatus('✅ Successfully subscribed to notifications!', 'success');
-                    updateStatus();
-                    updateDebugInfo();
+                    // Test showing a basic notification
+                    new Notification('Test Notification', {
+                        body: 'If you see this, basic notifications work!',
+                        icon: '/favicon.ico'
+                    });
                 } else {
-                    showStatus('❌ Permission denied. Please enable notifications in your browser settings.', 'error');
+                    showStatus('❌ Native permission denied', 'error');
                 }
             } catch (error) {
-                showStatus(`Error subscribing: ${error.message}`, 'error');
-                console.error('Subscription error:', error);
+                log('Native API error: ' + error.message);
+                showStatus('❌ Error with native API: ' + error.message, 'error');
             }
-        }
+        });
         
-        // Send test notification
-        async function sendTestNotification() {
-            try {
-                showStatus('Test notification sent! (Check your notifications)', 'success');
-                // Note: In a real app, you'd call your backend API here to send the notification
-                // For now, this is just a placeholder
-            } catch (error) {
-                showStatus(`Error sending test: ${error.message}`, 'error');
-            }
-        }
-        
-        // Debug information
-        function updateDebugInfo() {
-            const debugContainer = document.getElementById('debug-info');
+        // Step 2: Initialize OneSignal
+        document.getElementById('init-onesignal-btn').addEventListener('click', function() {
+            log('Initializing OneSignal...');
+            showStatus('🔄 Initializing OneSignal...', 'info');
             
-            const userAgent = navigator.userAgent;
-            const isIOS = /iPad|iPhone|iPod/.test(userAgent);
-            const isAndroid = /Android/.test(userAgent);
-            const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
-            const isChrome = /Chrome/.test(userAgent);
-            const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-            
-            let debugInfo = `
-Browser: ${userAgent}
-Platform: ${isIOS ? 'iOS' : isAndroid ? 'Android' : 'Other'}
-Browser Type: ${isSafari ? 'Safari' : isChrome ? 'Chrome' : 'Other'}
-Is PWA/Standalone: ${isStandalone}
-HTTPS: ${location.protocol === 'https:'}
-Push API Support: ${!!window.PushManager}
-Service Worker Support: ${!!navigator.serviceWorker}
-Notification API Support: ${!!window.Notification}
-Current Permission: ${Notification.permission}
-            `;
-            
-            if (OneSignal) {
-                debugInfo += `
-OneSignal Loaded: ✅
-Push Supported: ${OneSignal.Notifications ? OneSignal.Notifications.isPushSupported() : 'Loading...'}
-                `;
-            }
-            
-            debugContainer.textContent = debugInfo;
-        }
-        
-        // Event listeners
-        document.getElementById('subscribe-btn').addEventListener('click', subscribeToNotifications);
-        document.getElementById('test-btn').addEventListener('click', sendTestNotification);
-        
-        // Update debug info on page load
-        updateDebugInfo();
-        
-        // Listen for OneSignal events
-        if (typeof OneSignalDeferred !== 'undefined') {
-            OneSignalDeferred.push(function(OneSignal) {
-                OneSignal.Notifications.addEventListener('permissionChange', function(event) {
-                    console.log('Permission changed:', event);
-                    updateStatus();
-                });
-                
-                OneSignal.User.PushSubscription.addEventListener('change', function(event) {
-                    console.log('Subscription changed:', event);
-                    updateStatus();
-                });
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+            OneSignalDeferred.push(async function(OneSignalInstance) {
+                try {
+                    OneSignal = OneSignalInstance;
+                    
+                    await OneSignal.init({
+                        appId: "a1ca9082-d833-4630-972e-e83578a1ef79",
+                        allowLocalhostAsSecureOrigin: true,
+                    });
+                    
+                    log('OneSignal initialized successfully');
+                    
+                    // Check OneSignal status
+                    const isPushSupported = OneSignal.Notifications.isPushSupported();
+                    const currentPermission = await OneSignal.Notifications.getPermissionAsync();
+                    
+                    log('OneSignal push supported: ' + isPushSupported);
+                    log('OneSignal current permission: ' + currentPermission);
+                    
+                    showStatus('✅ OneSignal initialized successfully!', 'success');
+                    document.getElementById('request-permission-btn').disabled = false;
+                    
+                } catch (error) {
+                    log('OneSignal initialization error: ' + error.message);
+                    showStatus('❌ OneSignal initialization failed: ' + error.message, 'error');
+                }
             });
-        }
+        });
+        
+        // Step 3: Request OneSignal Permission
+        document.getElementById('request-permission-btn').addEventListener('click', async function() {
+            if (!OneSignal) {
+                showStatus('❌ OneSignal not initialized', 'error');
+                return;
+            }
+            
+            try {
+                log('Requesting OneSignal permission...');
+                showStatus('🔄 Requesting permission...', 'info');
+                
+                const permission = await OneSignal.Notifications.requestPermissionAsync();
+                log('OneSignal permission result: ' + permission);
+                
+                if (permission === 'granted') {
+                    showStatus('✅ OneSignal permission granted!', 'success');
+                    document.getElementById('subscribe-btn').disabled = false;
+                } else {
+                    showStatus('❌ OneSignal permission denied', 'error');
+                }
+                
+            } catch (error) {
+                log('OneSignal permission error: ' + error.message);
+                showStatus('❌ Permission request failed: ' + error.message, 'error');
+            }
+        });
+        
+        // Step 4: Subscribe to OneSignal
+        document.getElementById('subscribe-btn').addEventListener('click', async function() {
+            if (!OneSignal) {
+                showStatus('❌ OneSignal not initialized', 'error');
+                return;
+            }
+            
+            try {
+                log('Subscribing to OneSignal...');
+                showStatus('🔄 Subscribing...', 'info');
+                
+                await OneSignal.User.PushSubscription.optInAsync();
+                log('Successfully opted in to OneSignal');
+                
+                // Wait a moment and check status
+                setTimeout(async () => {
+                    const isOptedIn = await OneSignal.User.PushSubscription.getOptedInAsync();
+                    const subscriptionId = await OneSignal.User.PushSubscription.getIdAsync();
+                    
+                    log('Is opted in: ' + isOptedIn);
+                    log('Subscription ID: ' + (subscriptionId || 'None'));
+                    
+                    if (isOptedIn && subscriptionId) {
+                        showStatus('🎉 Successfully subscribed! Subscription ID: ' + subscriptionId, 'success');
+                    } else {
+                        showStatus('⚠️ Subscription incomplete', 'error');
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                log('OneSignal subscription error: ' + error.message);
+                showStatus('❌ Subscription failed: ' + error.message, 'error');
+            }
+        });
+        
+        // Initial setup
+        log('Page loaded. Ready to test.');
+        log('User Agent: ' + navigator.userAgent);
+        log('Location: ' + location.href);
+        log('Protocol: ' + location.protocol);
+        
     </script>
 </body>
 </html>
