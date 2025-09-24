@@ -1,94 +1,292 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TTIA.ir Push Notifications</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دعوت‌نامه انجمن صنایع چای استان تهران</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Design Tokens */
+      --bg:       #0f3b37;
+      --gold:     #d6b66a;
+      --gold-2:   #b59142;
+      --inner:    rgba(255,255,255,0.04);
+      --maxw:     900px;
+      --pad:      44px;
+      --radius:   0;
+      --border1:  6px;
+      --border2:  2px;
+      --gutter:   22px;
+      --inset:    26px;
+      --orn-size: 180px;
+      --lead:     1.9;
+    }
+
+    /* --- Global Styles --- */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 100%;
+    }
+
+    body {
+      font-family: 'Vazirmatn', 'Noto Naskh Arabic', Tahoma, Arial, sans-serif;
+      direction: rtl;
+      text-align: right;
+      background-color: var(--bg);
+      color: var(--gold);
+      line-height: var(--lead);
+      font-weight: 400;
+      font-size: clamp(15px, 1.8vw, 18px);
+    }
+
+    /* --- Layout Structure --- */
+    .page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .frame {
+      position: relative;
+      width: 100%;
+      max-width: var(--maxw);
+      aspect-ratio: 210 / 297; /* A4-like aspect ratio */
+      background-color: var(--bg);
+      padding: var(--pad);
+      overflow: hidden;
+      border-radius: var(--radius);
+      /* --- Double Border using Box Shadow --- */
+      box-shadow:
+        inset 0 0 0 var(--border1) var(--gold),
+        inset 0 0 0 calc(var(--border1) + var(--gutter)) transparent,
+        inset 0 0 0 calc(var(--border1) + var(--gutter) + var(--border2)) var(--gold-2);
+    }
+
+    /* --- Thin Inner Rectangle --- */
+    .frame::after {
+      content: "";
+      position: absolute;
+      inset: calc(var(--pad) + var(--inset));
+      border: 1px solid var(--gold);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    /* --- Corner Ornaments --- */
+    .orn {
+      position: absolute;
+      width: var(--orn-size);
+      height: auto;
+      opacity: 0.95;
+      pointer-events: none;
+    }
+    .orn-tl { top: 12px; right: 12px; transform: scaleX(-1); }
+    .orn-tr { top: 12px; left: 12px; }
+    .orn-bl { bottom: 12px; right: 12px; transform: scale(-1, -1); }
+    .orn-br { bottom: 12px; left: 12px; transform: scaleY(-1); }
+
+    /* --- Typography & Content Blocks --- */
+    .hero {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .logo {
+      display: block;
+      margin: 0 auto 10px auto;
+      width: clamp(80px, 12vw, 130px);
+      height: auto;
+    }
+
+    h1 {
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      margin-top: 14px;
+      line-height: 1.4;
+    }
+
+    .subhead {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    section {
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      margin: 22px 0 10px;
+    }
+
+    .agenda h2::after {
+      content: "";
+      display: block;
+      height: 1px;
+      width: 140px;
+      background: var(--gold-2);
+      margin: 8px auto 0;
+    }
+
+    .bullets {
+      list-style: none;
+      padding: 0;
+    }
+    .bullets li {
+      position: relative;
+      padding-right: 18px;
+      margin: 6px 0;
+      font-size: 18px;
+    }
+    .bullets li::before {
+      content: "•";
+      position: absolute;
+      right: 0;
+      top: 1px;
+      font-size: 1.2em;
+      line-height: 1;
+      color: var(--gold);
+    }
+
+    .asterisk {
+      list-style: none;
+      padding: 0;
+      margin-top: 12px;
+    }
+    .asterisk li {
+      padding-right: 0px;
+      margin: 6px 0;
+      font-size: 17px;
+    }
+    .asterisk li::before {
+      content: "* ";
+      color: var(--gold);
+      font-weight: 700;
+      margin-left: 4px;
+    }
     
-    <link rel="manifest" href="/manifest.json">
-    <link rel="stylesheet" href="style.css">
+    .signoff {
+      text-align: center;
+      margin-top: 24px;
+      line-height: 1.6;
+    }
+    .signoff .role {
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 18px;
+    }
+    .signoff .org {
+      font-weight: 500;
+      margin: 0 0 4px;
+      font-size: 18px;
+    }
+    .signoff .name {
+      font-weight: 700;
+      font-size: 18px;
+    }
 
-    <!-- OneSignal SDK -->
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(async function(OneSignal) {
-        
-        await OneSignal.init({
-          appId: "a1ca9082-d833-4630-972e-e83578a1ef79",
-          autoResubscribe: true,
-          
-          // === THIS IS THE KEY CHANGE ===
-          // We are explicitly telling OneSignal to prepare the slidedown prompt,
-          // but NOT to show it automatically. This makes our button click more reliable.
-          promptOptions: {
-              slidedown: {
-                  enabled: true,    // We want to use the slidedown prompt
-                  autoPrompt: false // But we DON'T want it to show automatically
-              }
-          },
-        });
-        
-        updateUI(); 
-      });
-
-      async function updateUI() {
-          const permission = await OneSignal.getNotificationPermission();
-          const isSubscribed = await OneSignal.isPushNotificationsEnabled();
-          
-          const statusDiv = document.getElementById('status');
-          const subscribeButton = document.getElementById('subscribe-button');
-          const unsubscribeButton = document.getElementById('unsubscribe-button');
-          
-          // Disable the button until we know the status to prevent errors
-          subscribeButton.disabled = true;
-
-          if (permission === 'denied') {
-              statusDiv.textContent = "You have blocked notifications. Please enable them in your browser settings.";
-              subscribeButton.style.display = 'none';
-              unsubscribeButton.style.display = 'none';
-          } else if (isSubscribed) {
-              statusDiv.textContent = "You are subscribed to notifications!";
-              subscribeButton.style.display = 'none';
-              unsubscribeButton.style.display = 'inline-block';
-          } else {
-              statusDiv.textContent = "Click the button to subscribe.";
-              subscribeButton.style.display = 'inline-block';
-              unsubscribeButton.style.display = 'none';
-              subscribeButton.disabled = false; // Re-enable the button
-          }
+    /* --- Responsiveness --- */
+    @media (max-width: 768px) {
+      :root {
+        --pad: 28px;
+        --orn-size: 120px;
+        --gutter: 16px;
+        --inset: 16px;
       }
-
-      async function onSubscribeButtonClick() {
-          // This will now reliably show the slidedown prompt we configured above.
-          await OneSignal.showSlidedownPrompt();
-          updateUI();
+      .frame {
+        width: min(94vw, 600px);
+        min-height: 80vh;
+        aspect-ratio: auto;
       }
-      
-      async function onUnsubscribeButtonClick() {
-          await OneSignal.setSubscription(false);
-          updateUI();
+      .logo { margin-bottom: 6px; }
+    }
+    @media (max-width: 480px) {
+      :root {
+        --orn-size: 92px;
       }
+      .frame::after { display: none; } /* Hide inner rule on small screens */
+      .page { padding: 12px; }
+    }
+  </style>
 
-    </script>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "a1ca9082-d833-4630-972e-e83578a1ef79",
+    });
+  });
+</script>
+  <button id="enable-push">فعالسازی اعلان‌ها</button>
+<script>
+  const btn = document.getElementById('enable-push');
+  btn.addEventListener('click', async () => {
+    await OneSignal.Notifications.requestPermission(); // v16
+  });
+</script>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Welcome to TTIAf .ir</h1>
-        <p>Get the latest updates delivered right to your screen.</p>
+  <main class="page">
+    <div class="frame">
+      <!-- Corner Ornaments (Embedded SVG) -->
+      <img class="orn orn-tl" src="data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M90 15 C 40 15 15 40 15 90 C 15 115 25 135 45 145 M15 90 C 40 85 60 60 80 40 M45 145 C 65 140 95 120 105 100' stroke='%23d6b66a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" alt="" />
+      <img class="orn orn-tr" src="data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M90 15 C 40 15 15 40 15 90 C 15 115 25 135 45 145 M15 90 C 40 85 60 60 80 40 M45 145 C 65 140 95 120 105 100' stroke='%23d6b66a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" alt="" />
+      <img class="orn orn-bl" src="data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M90 15 C 40 15 15 40 15 90 C 15 115 25 135 45 145 M15 90 C 40 85 60 60 80 40 M45 145 C 65 140 95 120 105 100' stroke='%23d6b66a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" alt="" />
+      <img class="orn orn-br" src="data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M90 15 C 40 15 15 40 15 90 C 15 115 25 135 45 145 M15 90 C 40 85 60 60 80 40 M45 145 C 65 140 95 120 105 100' stroke='%23d6b66a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" alt="" />
 
-        <div id="ios-instructions">
-            <strong>For iPhone/iPad Users:</strong> To enable notifications, you must first add this site to your Home Screen. Tap the 'Share' icon and then 'Add to Home Screen'.
-        </div>
+      <header class="hero">
+        <!-- Remember to replace this with your 'logo.png' -->
+        <img class="logo" src="logo.png" alt="نشان انجمن صنایع چای استان تهران" />
+        <h1>-اعضای محترم انجمن صنایع چای استان تهران</h1>
+      </header>
 
-        <div class="button-container">
-            <button id="subscribe-button" onclick="onSubscribeButtonClick()" disabled>Loading...</button>
-            <button id="unsubscribe-button" onclick="onUnsubscribeButtonClick()" style="display: none;">Unsubscribe</button>
-        </div>
+      <section class="greeting">
+        <p class="subhead">با سلام و احترام</p>
+        <p>بدین‌وسیلـه از حضرتعــالی دعوت می‌شـود در جلسـه مجمع عمومی مؤسسین انجمن صنـــایع چــای استان تهــران حضور به هم رسانید.<br>
+        مجمع عمومی در روز شنبه ۵ مهرماه ۱۴۰۴، ساعت ۹ صبـح، در سالن کنفرانس محل انجمن، واقع در میدان آرژانتین، خیابان الوند، کوچه آفرین، پلاک ۸، طبقه همکف برگزار خواهد شد.</p>
+      </section>
 
-        <p id="status">Loading status...</p>
+      <section class="agenda">
+        <h2>دستور جلسه</h2>
+        <ul class="bullets">
+          <li>بررسی و تصویب پیش‌نویس اساسنامه</li>
+          <li>تعیین روزنامه کثیرالانتشار</li>
+          <li>تعیین ورودیه و حق عضویت</li>
+          <li>انتخاب اعضای اصلی هیئت‌مدیره و بازرسان</li>
+          <li>سایر موارد</li>
+        </ul>
+      </section>
+
+      <section class="notes">
+        <ul class="asterisk">
+          <li>همراه داشتن اصل کارت ملی، اصل کارت عضویت یا بازرگانی معتبر اتاق تهران و مجوز فعالیت در روز مجمع الزامی است.</li>
+          <li>نمایندگان اشخاص حقوقی می‌بایست مدیرعامل یا یکی از اعضا هیئت مدیره موسسه متبوع باشند و در روز مجمع، روزنامه رسمی آخرین تغییرات هیئت مدیره و اصل معرفی نامه با مهر و سربرگ شرکت را به همراه داشته باشند.</li>
+        </ul>
+      </section>
+
+      <footer class="signoff">
+        <p class="role">نماینده هیئت موسسین</p>
+        <p class="org">«انجمن صنایع چای استان تهران»</p>
+        <p class="name">شیخ انصاری</p>
+      </footer>
     </div>
+  </main>
 
 </body>
 </html>
