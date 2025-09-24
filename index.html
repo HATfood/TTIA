@@ -222,6 +222,17 @@
       .page { padding: 12px; }
     }
   </style>
+
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "a1ca9082-d833-4630-972e-e83578a1ef79",
+    });
+  });
+</script>
+  
 </head>
 <body>
 
