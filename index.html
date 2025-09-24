@@ -1,28 +1,39 @@
 <!DOCTYPE html>
 <html lang="fa">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>انجمن صنایع چای تهران</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- manifest برای iOS/اندروید -->
-  <link rel="manifest" href="/manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#0f5132">
+  <!-- مسیر نسبی تا مانیفست (نه /manifest.json) -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0f5132" />
 
-  <!-- اسکریپت OneSignal v16 -->
+  <!-- OneSignal v16 -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
+    // کشف base path برای GitHub Pages پروژه‌ای (مثل /my-site/)
+    // این کار باعث می‌شود Service Worker در همان scope سایت ثبت شود.
+    function getBasePath() {
+      // مثال: /my-site/index.html → '/my-site/'
+      const path = location.pathname;
+      if (path.endsWith(".html")) return path.substring(0, path.lastIndexOf("/") + 1);
+      return path.endsWith("/") ? path : path + "/";
+    }
+    const BASE = getBasePath(); // مثل '/my-site/' یا '/' در دامنهٔ ریشه
+
     window.OneSignalDeferred = window.OneSignalDeferred || [];
-    OneSignalDeferred.push(async function(OneSignal) {
+    OneSignalDeferred.push(async function (OneSignal) {
       await OneSignal.init({
-        appId: "a1ca9082-d833-4630-972e-e83578a1ef79", // 👈 App ID خودت
+        appId: "a1ca9082-d833-4630-972e-e83578a1ef79",
+        // خیلی مهم: مسیر سرویس‌ورکر نسبی به base
+        serviceWorkerPath: BASE + "OneSignalSDKWorker.js",
       });
 
-      // برچسب (Tag) برای این جلسه
+      // تگ جلسه (دلخواه)
       OneSignal.User.addTags({ event: "agm-1404-07-05" });
-
-      // شناسه‌ی یکتا (برای تست یا کاربر خاص)
+      // برای تست ارسال به خودت:
       // OneSignal.login("user_majid_rahmani");
     });
   </script>
@@ -31,115 +42,84 @@
   <h1>به انجمن صنایع چای تهران خوش آمدید</h1>
   <p>برای دریافت اعلان‌های جلسه، روی دکمه زیر بزنید:</p>
 
-  <!-- دکمه فعالسازی پوش -->
   <button id="enable-push">فعالسازی اعلان‌ها</button>
 
+  <div id="diag" style="font-family:sans-serif;border:1px solid #ddd;padding:12px;margin:16px 0">
+    <b>Push Diagnostics</b>
+    <div id="d1">Loading…</div>
+    <div id="d2"></div>
+    <div id="d3"></div>
+    <div id="d4"></div>
+    <div id="d5"></div>
+    <button id="req" style="margin-top:8px">درخواست اجازه اعلان‌ها</button>
+  </div>
+
   <script>
-    const btn = document.getElementById('enable-push');
-    btn.addEventListener('click', async () => {
+    const btn = document.getElementById("enable-push");
+    btn.addEventListener("click", async () => {
       try {
         const res = await OneSignal.Notifications.requestPermission();
-        if (res === 'granted') {
-          alert("اعلان‌ها فعال شد ✅");
-        } else {
-          alert("شما اجازه اعلان ندادید ❌");
-        }
-      } catch (e) {
-        console.error("Push request error:", e);
-      }
+        alert(res === "granted" ? "اعلان‌ها فعال شد ✅" : "شما اجازه اعلان ندادید ❌");
+      } catch (e) { console.error(e); }
     });
-  </script>
 
-  <div id="diag" style="font-family: sans-serif; border:1px solid #ddd; padding:12px; margin:16px 0">
-  <b>Push Diagnostics</b>
-  <div id="d1">Loading…</div>
-  <div id="d2"></div>
-  <div id="d3"></div>
-  <div id="d4"></div>
-  <div id="d5"></div>
-  <button id="req" style="margin-top:8px">فعالسازی اعلان‌ها</button>
-</div>
+    (async () => {
+      if (OneSignal?.Debug?.setLogLevel) OneSignal.Debug.setLogLevel("trace");
 
-<script>
-  (async () => {
-    // لاگ مفصل
-    if (OneSignal?.Debug?.setLogLevel) OneSignal.Debug.setLogLevel('trace');
+      const d1 = document.getElementById("d1");
+      const d2 = document.getElementById("d2");
+      const d3 = document.getElementById("d3");
+      const d4 = document.getElementById("d4");
+      const d5 = document.getElementById("d5");
 
-    const d1 = document.getElementById('d1');
-    const d2 = document.getElementById('d2');
-    const d3 = document.getElementById('d3');
-    const d4 = document.getElementById('d4');
-    const d5 = document.getElementById('d5');
-
-    // 0) دسترسی به فایل SW از ریشه
-    try {
-      const w = await fetch('/OneSignalSDKWorker.js', { cache: 'no-store' });
-      d1.textContent = `Worker: HTTP ${w.status} @ /OneSignalSDKWorker.js`;
-    } catch (e) {
-      d1.textContent = 'Worker fetch error';
-    }
-
-    // 1) پشتیبانی پوش
-    const supported = await OneSignal.Notifications.isPushSupported();
-    d2.textContent = `isPushSupported: ${supported}`;
-
-    // 2) وضعیت پرمیشن
-    const status = await OneSignal.Notifications.getPermissionStatus();
-    d3.textContent = `permissionStatus: ${status} (expected: 'default' or 'granted')`;
-
-    // 3) Subscription ID
-    const subId = await OneSignal.User.PushSubscription.getId();
-    d4.textContent = `subscriptionId: ${subId || '—'}`;
-
-    // 4) ثبت SW روی همین اوریجین؟
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      const hasOS = regs.some(r =>
-        (r.active && r.active.scriptURL.includes('OneSignalSDK')) ||
-        (r.scriptURL && r.scriptURL.includes('OneSignalSDK'))
-      );
-      d5.textContent = `SW registered: ${hasOS} (registrations: ${regs.length})`;
-    } else {
-      d5.textContent = 'serviceWorker: not supported';
-    }
-
-    // دکمه‌ی درخواست اجازه
-    document.getElementById('req').onclick = async () => {
+      // فایل SW را با مسیر نسبی چک کن
       try {
-        // اگر iOS هست و از آیکن Home اجرا نشده، همین‌جا خارج شو
-        // (iOS وقتی داخل Safari تب هستی Push نمی‌ده)
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        if (isIOS && (window.matchMedia('(display-mode: browser)').matches)) {
-          alert('روی iOS باید سایت را Add to Home Screen کنی و از آیکن اجرا کنی تا پرامپت بیاید.');
-          return;
-        }
+        const w = await fetch(BASE + "OneSignalSDKWorker.js", { cache: "no-store" });
+        d1.textContent = `Worker: HTTP ${w.status} @ ${BASE}OneSignalSDKWorker.js`;
+      } catch { d1.textContent = "Worker fetch error"; }
 
-        const sup = await OneSignal.Notifications.isPushSupported();
-        if (!sup) {
-          alert('Push در این محیط پشتیبانی نمی‌شود (یا iOS در حالت تب است).');
-          return;
-        }
+      const supported = await OneSignal.Notifications.isPushSupported();
+      d2.textContent = `isPushSupported: ${supported}`;
 
-        // روش پیشنهادی در v16: Slidedown
-        if (OneSignal.Slidedown?.promptPush) {
-          await OneSignal.Slidedown.promptPush();
-        } else {
-          // روش مستقیم
-          const res = await OneSignal.Notifications.requestPermission();
-          alert('permission: ' + res);
-        }
+      const status = await OneSignal.Notifications.getPermissionStatus();
+      d3.textContent = `permissionStatus: ${status}`;
 
-        // نمایش subId بعد از opt-in
-        const id = await OneSignal.User.PushSubscription.getId();
-        console.log('New subscriptionId:', id);
-        d4.textContent = `subscriptionId: ${id || '—'}`;
-      } catch (e) {
-        console.error(e);
-        alert('Error requesting permission (check console)');
+      const subId = await OneSignal.User.PushSubscription.getId();
+      d4.textContent = `subscriptionId: ${subId || "—"}`;
+
+      if ("serviceWorker" in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        const hasOS = regs.some(r =>
+          (r.active && r.active.scriptURL.includes("OneSignalSDK")) ||
+          (r.scriptURL && r.scriptURL.includes("OneSignalSDK"))
+        );
+        d5.textContent = `SW registered: ${hasOS} (registrations: ${regs.length})`;
+      } else {
+        d5.textContent = "serviceWorker: not supported";
       }
-    };
-  })();
-</script>
 
+      document.getElementById("req").onclick = async () => {
+        try {
+          // iOS: باید Add to Home Screen شود
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+          if (isIOS && (window.matchMedia("(display-mode: browser)").matches)) {
+            alert("روی iOS باید Add to Home Screen کنید و از آیکن اجرا کنید.");
+            return;
+          }
+          const sup = await OneSignal.Notifications.isPushSupported();
+          if (!sup) { alert("Push در این محیط پشتیبانی نمی‌شود."); return; }
+
+          if (OneSignal.Slidedown?.promptPush) await OneSignal.Slidedown.promptPush();
+          else {
+            const res = await OneSignal.Notifications.requestPermission();
+            alert("permission: " + res);
+          }
+
+          const id = await OneSignal.User.PushSubscription.getId();
+          d4.textContent = `subscriptionId: ${id || "—"}`;
+        } catch (e) { console.error(e); alert("Error requesting permission"); }
+      };
+    })();
+  </script>
 </body>
 </html>
