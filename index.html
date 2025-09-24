@@ -26,6 +26,7 @@
         :root {
             --primary-green: #215c3d;
             --accent-gold: #9e8640;
+            --accent-gold-dark: #8a7436;
             --text-light: #ffffff;
             --glass-bg: rgba(255, 255, 255, 0.1);
             --glass-border: rgba(255, 255, 255, 0.2);
@@ -91,10 +92,22 @@
             text-align: center;
             margin-bottom: 40px;
         }
+        
+        .logo-container {
+            width: 180px;
+            height: 180px;
+            background-color: rgba(255, 255, 255, 0.85);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
 
         header img {
-            max-width: 120px;
-            margin-bottom: 20px;
+            max-width: 150px; 
+            height: auto;
         }
 
         header h1 {
@@ -114,7 +127,8 @@
         /* Two-column Layout */
         main {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            /* UPDATED: Improved column proportions for better balance */
+            grid-template-columns: 1fr 400px;
             gap: 30px;
         }
 
@@ -122,7 +136,7 @@
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px); /* For Safari */
+            -webkit-backdrop-filter: blur(12px);
             border-radius: 20px;
             border: 1px solid var(--glass-border);
             box-shadow: 0 8px 32px 0 var(--shadow-color);
@@ -148,25 +162,21 @@
 
         .agenda-card ol {
             padding-right: 25px;
+            /* UPDATED: Use Persian numerals for list items */
+            list-style-type: persian;
         }
 
         .agenda-card ol li {
             margin-bottom: 15px;
             padding-right: 10px;
-            position: relative;
         }
         
-        /* Custom list bullets */
-        .agenda-card ol li::before {
-            content: '✓';
-            color: var(--accent-gold);
-            position: absolute;
-            right: -25px;
-            top: 0;
-            font-weight: bold;
+        /* Info Card Specifics */
+        .info-card {
+            /* Ensures this card doesn't shrink unnecessarily */
+            flex-shrink: 0; 
         }
 
-        /* Info Card Specifics */
         .info-card p {
             margin-bottom: 20px;
             display: flex;
@@ -204,10 +214,11 @@
             border-radius: 12px;
             font-size: 1.1rem;
             font-weight: 700;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
         }
 
         .map-button:hover {
+            background-color: var(--accent-gold-dark);
             transform: translateY(-3px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
             color: #fff;
@@ -216,6 +227,7 @@
         /* Responsive Design */
         @media (max-width: 992px) {
             main {
+                /* Stacks columns on smaller screens */
                 grid-template-columns: 1fr;
             }
             header h1 {
@@ -228,7 +240,9 @@
 
     <div class="container">
         <header>
-            <img src="logo.png" alt="لوگوی انجمن صنایع چای ایران">
+            <div class="logo-container">
+                <img src="logo.png" alt="لوگوی انجمن صنایع چای ایران">
+            </div>
             <h1>انجمن صنایع چای ایران</h1>
             <h2>Tehran Tea Industries Association</h2>
         </header>
