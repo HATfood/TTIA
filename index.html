@@ -3,210 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple OneSignal Test - ttia.ir</title>
+    <title>TTIA.ir Push Notifications</title>
     
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px 0;
-            display: block;
-            width: 100%;
-        }
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        .status {
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
-        }
-        .status.success { background: #d4edda; color: #155724; }
-        .status.error { background: #f8d7da; color: #721c24; }
-        .status.info { background: #d1ecf1; color: #0c5460; }
-        .log {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 10px;
-            font-family: monospace;
-            font-size: 12px;
-            white-space: pre-wrap;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-    </style>
+    <!-- This is CRUCIAL for making your site "installable" on iOS -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- A simple stylesheet to make it look nice -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- The OneSignal script you were given. "defer" is important. -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      // This makes sure the OneSignal code runs after the SDK is loaded
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        // Initialize OneSignal with your App ID
+        await OneSignal.init({
+          appId: "a1ca9082-d833-4630-972e-e83578a1ef79", // Your App ID
+          // We set this to false so we can control WHEN to ask for permission
+          // This is essential for a good user experience and for iOS.
+          promptOptions: {
+            autoPrompt: false, 
+          },
+          // This allows users to re-subscribe if they clear their cache
+          autoResubscribe: true,
+          // This part handles the case where a user is already subscribed on a different subdomain
+          allowLocalhostAsSecureOrigin: true, // Good for local testing
+        });
+        
+        // Run our function to update the buttons and status on page load
+        updateUI(); 
+      });
+
+      // This function checks the user's status and updates the page content
+      async function updateUI() {
+          const permission = await OneSignal.getNotificationPermission();
+          const isSubscribed = await OneSignal.isPushNotificationsEnabled();
+          
+          const statusDiv = document.getElementById('status');
+          const subscribeButton = document.getElementById('subscribe-button');
+          const unsubscribeButton = document.getElementById('unsubscribe-button');
+          
+          if (permission === 'denied') {
+              statusDiv.textContent = "You have blocked notifications. Please enable them in your browser settings.";
+              subscribeButton.style.display = 'none';
+              unsubscribeButton.style.display = 'none';
+          } else if (isSubscribed) {
+              statusDiv.textContent = "You are subscribed to notifications!";
+              subscribeButton.style.display = 'none';
+              unsubscribeButton.style.display = 'inline-block';
+          } else {
+              statusDiv.textContent = "Click the button to subscribe.";
+              subscribeButton.style.display = 'inline-block';
+              unsubscribeButton.style.display = 'none';
+          }
+      }
+
+      // This function is called when the user clicks the "Subscribe" button
+      async function onSubscribeButtonClick() {
+          // This shows OneSignal's user-friendly slidedown prompt,
+          // which is better than the native browser prompt.
+          await OneSignal.showSlidedownPrompt();
+          // After the prompt, update the UI again
+          updateUI();
+      }
+      
+      // This function is called when the user clicks the "Unsubscribe" button
+      async function onUnsubscribeButtonClick() {
+          // This disables push notifications for the user
+          await OneSignal.setSubscription(false);
+          updateUI();
+      }
+
+    </script>
 </head>
 <body>
-    <h1>🔔 Simple OneSignal Test</h1>
-    
-    <div id="status" class="status info">
-        Ready to test OneSignal notifications...
+
+    <div class="container">
+        <h1>Welcome to TTIA.ir</h1>
+        <p>Get the latest updates delivered right to your screen.</p>
+
+        <!-- Instructions specifically for iPhone/iPad users -->
+        <div id="ios-instructions">
+            <strong>For iPhone/iPad Users:</strong> To enable notifications, you must first add this site to your Home Screen. Tap the 'Share' icon and then 'Add to Home Screen'.
+        </div>
+
+        <div class="button-container">
+            <!-- We call our functions from the button's onclick event -->
+            <button id="subscribe-button" onclick="onSubscribeButtonClick()">Subscribe to Notifications</button>
+            <button id="unsubscribe-button" onclick="onUnsubscribeButtonClick()" style="display: none;">Unsubscribe</button>
+        </div>
+
+        <p id="status">Loading status...</p>
     </div>
-    
-    <button id="loadBtn" class="btn">1. Load OneSignal</button>
-    <button id="initBtn" class="btn" disabled>2. Initialize OneSignal</button>
-    <button id="subscribeBtn" class="btn" disabled>3. Subscribe to Notifications</button>
-    
-    <h3>Console Log:</h3>
-    <div id="log" class="log">Waiting for user action...\n</div>
-    
-    <script>
-        let OneSignal = null;
-        let logDiv = document.getElementById('log');
-        let statusDiv = document.getElementById('status');
-        
-        function log(message) {
-            console.log(message);
-            logDiv.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
-            logDiv.scrollTop = logDiv.scrollHeight;
-        }
-        
-        function setStatus(message, type = 'info') {
-            statusDiv.textContent = message;
-            statusDiv.className = `status ${type}`;
-        }
-        
-        // Step 1: Load OneSignal SDK
-        document.getElementById('loadBtn').addEventListener('click', function() {
-            log('Loading OneSignal SDK...');
-            setStatus('Loading OneSignal SDK...', 'info');
-            
-            // Load OneSignal script dynamically
-            const script = document.createElement('script');
-            script.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
-            script.onload = function() {
-                log('OneSignal SDK loaded successfully');
-                setStatus('OneSignal SDK loaded! Click "Initialize OneSignal"', 'success');
-                document.getElementById('initBtn').disabled = false;
-            };
-            script.onerror = function() {
-                log('Failed to load OneSignal SDK');
-                setStatus('Failed to load OneSignal SDK', 'error');
-            };
-            document.head.appendChild(script);
-            
-            this.disabled = true;
-        });
-        
-        // Step 2: Initialize OneSignal
-        document.getElementById('initBtn').addEventListener('click', function() {
-            log('Initializing OneSignal...');
-            setStatus('Initializing OneSignal...', 'info');
-            
-            // Wait for OneSignal to be available
-            const initOneSignal = () => {
-                if (typeof window.OneSignalDeferred === 'undefined') {
-                    log('OneSignalDeferred not available yet, retrying in 500ms...');
-                    setTimeout(initOneSignal, 500);
-                    return;
-                }
-                
-                log('OneSignalDeferred found, proceeding with initialization...');
-                
-                window.OneSignalDeferred = window.OneSignalDeferred || [];
-                OneSignalDeferred.push(async function(OneSignalInstance) {
-                    try {
-                        OneSignal = OneSignalInstance;
-                        log('OneSignal instance received');
-                        
-                        await OneSignal.init({
-                            appId: "a1ca9082-d833-4630-972e-e83578a1ef79",
-                            allowLocalhostAsSecureOrigin: true,
-                        });
-                        
-                        log('OneSignal.init() completed successfully');
-                        
-                        // Check capabilities
-                        const pushSupported = OneSignal.Notifications.isPushSupported();
-                        const currentPermission = await OneSignal.Notifications.getPermissionAsync();
-                        
-                        log(`Push supported: ${pushSupported}`);
-                        log(`Current permission: ${currentPermission}`);
-                        
-                        setStatus('OneSignal initialized! Click "Subscribe to Notifications"', 'success');
-                        document.getElementById('subscribeBtn').disabled = false;
-                        
-                    } catch (error) {
-                        log(`OneSignal initialization error: ${error.message}`);
-                        setStatus(`Initialization failed: ${error.message}`, 'error');
-                    }
-                });
-            };
-            
-            initOneSignal();
-            this.disabled = true;
-        });
-        
-        // Step 3: Subscribe to notifications
-        document.getElementById('subscribeBtn').addEventListener('click', async function() {
-            if (!OneSignal) {
-                log('OneSignal not initialized');
-                setStatus('OneSignal not initialized', 'error');
-                return;
-            }
-            
-            try {
-                log('Requesting notification permission...');
-                setStatus('Requesting permission...', 'info');
-                
-                const permission = await OneSignal.Notifications.requestPermissionAsync();
-                log(`Permission result: ${permission}`);
-                
-                if (permission === 'granted') {
-                    log('Permission granted, subscribing...');
-                    setStatus('Permission granted! Subscribing...', 'info');
-                    
-                    await OneSignal.User.PushSubscription.optInAsync();
-                    log('OptIn completed');
-                    
-                    // Check subscription status
-                    setTimeout(async () => {
-                        try {
-                            const isOptedIn = await OneSignal.User.PushSubscription.getOptedInAsync();
-                            const subscriptionId = await OneSignal.User.PushSubscription.getIdAsync();
-                            
-                            log(`Is opted in: ${isOptedIn}`);
-                            log(`Subscription ID: ${subscriptionId || 'None'}`);
-                            
-                            if (isOptedIn && subscriptionId) {
-                                setStatus(`✅ Successfully subscribed! ID: ${subscriptionId.substring(0, 8)}...`, 'success');
-                            } else {
-                                setStatus('⚠️ Subscription incomplete', 'error');
-                            }
-                        } catch (checkError) {
-                            log(`Status check error: ${checkError.message}`);
-                            setStatus(`Status check failed: ${checkError.message}`, 'error');
-                        }
-                    }, 2000);
-                    
-                } else {
-                    log(`Permission not granted: ${permission}`);
-                    setStatus(`Permission ${permission}. Please check browser settings.`, 'error');
-                }
-                
-            } catch (error) {
-                log(`Subscription error: ${error.message}`);
-                setStatus(`Subscription failed: ${error.message}`, 'error');
-            }
-        });
-        
-        // Initial setup
-        log('Page loaded. Browser permission: ' + Notification.permission);
-        log('User agent: ' + navigator.userAgent.substring(0, 100) + '...');
-        
-    </script>
+
 </body>
 </html>
