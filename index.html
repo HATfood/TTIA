@@ -49,5 +49,97 @@
       }
     });
   </script>
+
+  <div id="diag" style="font-family: sans-serif; border:1px solid #ddd; padding:12px; margin:16px 0">
+  <b>Push Diagnostics</b>
+  <div id="d1">Loading…</div>
+  <div id="d2"></div>
+  <div id="d3"></div>
+  <div id="d4"></div>
+  <div id="d5"></div>
+  <button id="req" style="margin-top:8px">فعالسازی اعلان‌ها</button>
+</div>
+
+<script>
+  (async () => {
+    // لاگ مفصل
+    if (OneSignal?.Debug?.setLogLevel) OneSignal.Debug.setLogLevel('trace');
+
+    const d1 = document.getElementById('d1');
+    const d2 = document.getElementById('d2');
+    const d3 = document.getElementById('d3');
+    const d4 = document.getElementById('d4');
+    const d5 = document.getElementById('d5');
+
+    // 0) دسترسی به فایل SW از ریشه
+    try {
+      const w = await fetch('/OneSignalSDKWorker.js', { cache: 'no-store' });
+      d1.textContent = `Worker: HTTP ${w.status} @ /OneSignalSDKWorker.js`;
+    } catch (e) {
+      d1.textContent = 'Worker fetch error';
+    }
+
+    // 1) پشتیبانی پوش
+    const supported = await OneSignal.Notifications.isPushSupported();
+    d2.textContent = `isPushSupported: ${supported}`;
+
+    // 2) وضعیت پرمیشن
+    const status = await OneSignal.Notifications.getPermissionStatus();
+    d3.textContent = `permissionStatus: ${status} (expected: 'default' or 'granted')`;
+
+    // 3) Subscription ID
+    const subId = await OneSignal.User.PushSubscription.getId();
+    d4.textContent = `subscriptionId: ${subId || '—'}`;
+
+    // 4) ثبت SW روی همین اوریجین؟
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      const hasOS = regs.some(r =>
+        (r.active && r.active.scriptURL.includes('OneSignalSDK')) ||
+        (r.scriptURL && r.scriptURL.includes('OneSignalSDK'))
+      );
+      d5.textContent = `SW registered: ${hasOS} (registrations: ${regs.length})`;
+    } else {
+      d5.textContent = 'serviceWorker: not supported';
+    }
+
+    // دکمه‌ی درخواست اجازه
+    document.getElementById('req').onclick = async () => {
+      try {
+        // اگر iOS هست و از آیکن Home اجرا نشده، همین‌جا خارج شو
+        // (iOS وقتی داخل Safari تب هستی Push نمی‌ده)
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        if (isIOS && (window.matchMedia('(display-mode: browser)').matches)) {
+          alert('روی iOS باید سایت را Add to Home Screen کنی و از آیکن اجرا کنی تا پرامپت بیاید.');
+          return;
+        }
+
+        const sup = await OneSignal.Notifications.isPushSupported();
+        if (!sup) {
+          alert('Push در این محیط پشتیبانی نمی‌شود (یا iOS در حالت تب است).');
+          return;
+        }
+
+        // روش پیشنهادی در v16: Slidedown
+        if (OneSignal.Slidedown?.promptPush) {
+          await OneSignal.Slidedown.promptPush();
+        } else {
+          // روش مستقیم
+          const res = await OneSignal.Notifications.requestPermission();
+          alert('permission: ' + res);
+        }
+
+        // نمایش subId بعد از opt-in
+        const id = await OneSignal.User.PushSubscription.getId();
+        console.log('New subscriptionId:', id);
+        d4.textContent = `subscriptionId: ${id || '—'}`;
+      } catch (e) {
+        console.error(e);
+        alert('Error requesting permission (check console)');
+      }
+    };
+  })();
+</script>
+
 </body>
 </html>
