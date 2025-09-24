@@ -1,292 +1,281 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>دعوت‌نامه انجمن صنایع چای استان تهران</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      /* Design Tokens */
-      --bg:       #0f3b37;
-      --gold:     #d6b66a;
-      --gold-2:   #b59142;
-      --inner:    rgba(255,255,255,0.04);
-      --maxw:     900px;
-      --pad:      44px;
-      --radius:   0;
-      --border1:  6px;
-      --border2:  2px;
-      --gutter:   22px;
-      --inset:    26px;
-      --orn-size: 180px;
-      --lead:     1.9;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>انجمن صنایع چای تهران</title>
 
-    /* --- Global Styles --- */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    <!-- OneSignal Push Notification Script -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "a1ca9082-d833-4630-972e-e83578a1ef79",
+        });
+      });
+    </script>
 
-    html {
-      font-size: 100%;
-    }
+    <!-- Google Fonts for a beautiful Persian font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;700&display=swap" rel="stylesheet">
 
-    body {
-      font-family: 'Vazirmatn', 'Noto Naskh Arabic', Tahoma, Arial, sans-serif;
-      direction: rtl;
-      text-align: right;
-      background-color: var(--bg);
-      color: var(--gold);
-      line-height: var(--lead);
-      font-weight: 400;
-      font-size: clamp(15px, 1.8vw, 18px);
-    }
+    <style>
+        /* CSS Reset and Basic Setup */
+        :root {
+            --primary-green: #215c3d;
+            --accent-gold: #9e8640;
+            --text-light: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-color: rgba(0, 0, 0, 0.2);
+        }
 
-    /* --- Layout Structure --- */
-    .page {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 24px;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .frame {
-      position: relative;
-      width: 100%;
-      max-width: var(--maxw);
-      aspect-ratio: 210 / 297; /* A4-like aspect ratio */
-      background-color: var(--bg);
-      padding: var(--pad);
-      overflow: hidden;
-      border-radius: var(--radius);
-      /* --- Double Border using Box Shadow --- */
-      box-shadow:
-        inset 0 0 0 var(--border1) var(--gold),
-        inset 0 0 0 calc(var(--border1) + var(--gutter)) transparent,
-        inset 0 0 0 calc(var(--border1) + var(--gutter) + var(--border2)) var(--gold-2);
-    }
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: var(--primary-green);
+            color: var(--text-light);
+            line-height: 1.8;
+            overflow-x: hidden;
+            position: relative;
+        }
 
-    /* --- Thin Inner Rectangle --- */
-    .frame::after {
-      content: "";
-      position: absolute;
-      inset: calc(var(--pad) + var(--inset));
-      border: 1px solid var(--gold);
-      opacity: 0.8;
-      pointer-events: none;
-    }
+        /* Eye-catching background elements */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            z-index: -1;
+            border-radius: 50%;
+            filter: blur(100px);
+        }
 
-    /* --- Corner Ornaments --- */
-    .orn {
-      position: absolute;
-      width: var(--orn-size);
-      height: auto;
-      opacity: 0.95;
-      pointer-events: none;
-    }
-    .orn-tl { top: 12px; right: 12px; transform: scaleX(-1); }
-    .orn-tr { top: 12px; left: 12px; }
-    .orn-bl { bottom: 12px; right: 12px; transform: scale(-1, -1); }
-    .orn-br { bottom: 12px; left: 12px; transform: scaleY(-1); }
+        body::before {
+            background: linear-gradient(45deg, var(--accent-gold), #b39b60);
+            width: 350px;
+            height: 350px;
+            top: -100px;
+            left: -100px;
+            opacity: 0.5;
+        }
 
-    /* --- Typography & Content Blocks --- */
-    .hero {
-      text-align: center;
-      margin-bottom: 18px;
-    }
+        body::after {
+            background: linear-gradient(45deg, #2e8b57, #3cb371);
+            width: 450px;
+            height: 450px;
+            bottom: -150px;
+            right: -150px;
+            opacity: 0.4;
+        }
 
-    .logo {
-      display: block;
-      margin: 0 auto 10px auto;
-      width: clamp(80px, 12vw, 130px);
-      height: auto;
-    }
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
 
-    h1 {
-      font-size: clamp(24px, 3vw, 36px);
-      font-weight: 700;
-      letter-spacing: 0.2px;
-      margin-top: 14px;
-      line-height: 1.4;
-    }
+        /* Header with Logo */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            margin-bottom: 40px;
+        }
 
-    .subhead {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
+        header img {
+            max-width: 120px;
+            margin-bottom: 20px;
+        }
 
-    section {
-      margin-bottom: 20px;
-    }
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+        }
 
-    h2 {
-      font-size: 22px;
-      font-weight: 700;
-      text-align: center;
-      margin: 22px 0 10px;
-    }
+        header h2 {
+            font-size: 1.2rem;
+            font-weight: 300;
+            color: var(--text-light);
+            opacity: 0.8;
+            letter-spacing: 1px;
+        }
 
-    .agenda h2::after {
-      content: "";
-      display: block;
-      height: 1px;
-      width: 140px;
-      background: var(--gold-2);
-      margin: 8px auto 0;
-    }
+        /* Two-column Layout */
+        main {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
 
-    .bullets {
-      list-style: none;
-      padding: 0;
-    }
-    .bullets li {
-      position: relative;
-      padding-right: 18px;
-      margin: 6px 0;
-      font-size: 18px;
-    }
-    .bullets li::before {
-      content: "•";
-      position: absolute;
-      right: 0;
-      top: 1px;
-      font-size: 1.2em;
-      line-height: 1;
-      color: var(--gold);
-    }
+        /* Glassmorphism Card Style */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); /* For Safari */
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 var(--shadow-color);
+            padding: 30px;
+        }
 
-    .asterisk {
-      list-style: none;
-      padding: 0;
-      margin-top: 12px;
-    }
-    .asterisk li {
-      padding-right: 0px;
-      margin: 6px 0;
-      font-size: 17px;
-    }
-    .asterisk li::before {
-      content: "* ";
-      color: var(--gold);
-      font-weight: 700;
-      margin-left: 4px;
-    }
-    
-    .signoff {
-      text-align: center;
-      margin-top: 24px;
-      line-height: 1.6;
-    }
-    .signoff .role {
-      font-weight: 600;
-      margin-bottom: 4px;
-      font-size: 18px;
-    }
-    .signoff .org {
-      font-weight: 500;
-      margin: 0 0 4px;
-      font-size: 18px;
-    }
-    .signoff .name {
-      font-weight: 700;
-      font-size: 18px;
-    }
+        .agenda-card h3, .info-card h3 {
+            font-size: 1.8rem;
+            color: var(--accent-gold);
+            border-bottom: 2px solid var(--accent-gold);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
 
-    /* --- Responsiveness --- */
-    @media (max-width: 768px) {
-      :root {
-        --pad: 28px;
-        --orn-size: 120px;
-        --gutter: 16px;
-        --inset: 16px;
-      }
-      .frame {
-        width: min(94vw, 600px);
-        min-height: 80vh;
-        aspect-ratio: auto;
-      }
-      .logo { margin-bottom: 6px; }
-    }
-    @media (max-width: 480px) {
-      :root {
-        --orn-size: 92px;
-      }
-      .frame::after { display: none; } /* Hide inner rule on small screens */
-      .page { padding: 12px; }
-    }
-  </style>
+        .agenda-card .event-time {
+            background-color: rgba(158, 134, 64, 0.2);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: inline-block;
+            font-weight: 700;
+        }
 
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "a1ca9082-d833-4630-972e-e83578a1ef79",
-    });
-  });
-</script>
-  <button id="enable-push">فعالسازی اعلان‌ها</button>
-<script>
-  const btn = document.getElementById('enable-push');
-  btn.addEventListener('click', async () => {
-    await OneSignal.Notifications.requestPermission(); // v16
-  });
-</script>
+        .agenda-card ol {
+            padding-right: 25px;
+        }
+
+        .agenda-card ol li {
+            margin-bottom: 15px;
+            padding-right: 10px;
+            position: relative;
+        }
+        
+        /* Custom list bullets */
+        .agenda-card ol li::before {
+            content: '✓';
+            color: var(--accent-gold);
+            position: absolute;
+            right: -25px;
+            top: 0;
+            font-weight: bold;
+        }
+
+        /* Info Card Specifics */
+        .info-card p {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-card svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--accent-gold);
+            flex-shrink: 0;
+        }
+
+        .info-card a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .info-card a:hover {
+            color: var(--accent-gold);
+        }
+        
+        /* Map Navigation Button */
+        .map-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: var(--accent-gold);
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .map-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+            color: #fff;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <main class="page">
-    <div class="frame">
-      <!-- Corner Ornaments (Embedded SVG) -->
-      <img class="orn orn-tl" src="data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M90 15 C 40 15 15 40 15 90 C 15 115 25 135 45 145 M15 90 C 40 85 60 60 80 40 M45 145 C 65 140 95 120 105 100' stroke='%23d6b66a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" alt="" />
-      <img class="orn orn-tr" src="data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M90 15 C 40 15 15 40 15 90 C 15 115 25 135 45 145 M15 90 C 40 85 60 60 80 40 M45 145 C 65 140 95 120 105 100' stroke='%23d6b66a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" alt="" />
-      <img class="orn orn-bl" src="data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M90 15 C 40 15 15 40 15 90 C 15 115 25 135 45 145 M15 90 C 40 85 60 60 80 40 M45 145 C 65 140 95 120 105 100' stroke='%23d6b66a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" alt="" />
-      <img class="orn orn-br" src="data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M90 15 C 40 15 15 40 15 90 C 15 115 25 135 45 145 M15 90 C 40 85 60 60 80 40 M45 145 C 65 140 95 120 105 100' stroke='%23d6b66a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" alt="" />
+    <div class="container">
+        <header>
+            <img src="logo.png" alt="لوگوی انجمن صنایع چای ایران">
+            <h1>انجمن صنایع چای ایران</h1>
+            <h2>Tehran Tea Industries Association</h2>
+        </header>
 
-      <header class="hero">
-        <!-- Remember to replace this with your 'logo.png' -->
-        <img class="logo" src="logo.png" alt="نشان انجمن صنایع چای استان تهران" />
-        <h1>-اعضای محترم انجمن صنایع چای استان تهران</h1>
-      </header>
+        <main>
+            <!-- Agenda Section -->
+            <div class="glass-card agenda-card">
+                <h3>دستور جلسه برگزاری مجمع</h3>
+                <p class="event-time">آغاز مراسم: ساعت ۹ صبح روز شنبه مورخ ۵ مهرماه ۱۴۰۴</p>
+                <ol>
+                    <li>ثبت و تکمیل لیست حضور و غیاب اعضا بر اساس اعلام اولیه، توسط نماینده محترم اتاق بازرگانی، صنایع، معادن و کشاورزی تهران.</li>
+                    <li>دریافت دو نسخه معرفی‌نامه مدعوین به همراه آخرین روزنامه رسمی شرکت، بر روی سربرگ سازمان و با مهر و امضای بالاترین مقام مسئول.</li>
+                    <li>اخذ برگه‌های رأی از نماینده محترم اتاق بازرگانی، صنایع، معادن و کشاورزی تهران پس از احراز هویت مدعوین در مراحل پیشین.</li>
+                    <li>انتخاب سه نفر از اعضای حاضر و یک نفر منشی (که داوطلب عضویت در هیئت‌مدیره نباشند) جهت انتخاب رئیس و ناظرین و منشی برای اداره جلسه و نظارت بر روند برگزاری.</li>
+                    <li>بررسی و تصویب اساسنامه انجمن چای استان تهران.</li>
+                    <li>انتخاب روزنامه کثیر الانتشار.</li>
+                    <li>تصویب مبلغ ورودی و حق عضویت سالانه انجمن.</li>
+                    <li>رأی‌گیری برای انتخاب پنج نفر عضو اصلی هیئت‌مدیره، دو نفر عضو علی‌البدل و بازرسان قانونی انجمن.</li>
+                    <li>تنظیم و تکمیل نهایی صورت جلسه مجمع و امضا اعضا حاضر در جلسه.</li>
+                </ol>
+            </div>
 
-      <section class="greeting">
-        <p class="subhead">با سلام و احترام</p>
-        <p>بدین‌وسیلـه از حضرتعــالی دعوت می‌شـود در جلسـه مجمع عمومی مؤسسین انجمن صنـــایع چــای استان تهــران حضور به هم رسانید.<br>
-        مجمع عمومی در روز شنبه ۵ مهرماه ۱۴۰۴، ساعت ۹ صبـح، در سالن کنفرانس محل انجمن، واقع در میدان آرژانتین، خیابان الوند، کوچه آفرین، پلاک ۸، طبقه همکف برگزار خواهد شد.</p>
-      </section>
+            <!-- Contact Information Section -->
+            <div class="glass-card info-card">
+                <h3>اطلاعات تماس و محل برگزاری</h3>
+                
+                <p>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C7.589 2 4 5.589 4 10c0 4.411 8 12 8 12s8-7.589 8-12c0-4.411-3.589-8-8-8zm0 12c-2.206 0-4-1.794-4-4s1.794-4 4-4 4 1.794 4 4-1.794 4-4 4z"></path></svg>
+                    تهران، میدان آرژانتین، خیابان الوند، کوچه آفرین، پلاک ۸، طبقه همکف
+                </p>
 
-      <section class="agenda">
-        <h2>دستور جلسه</h2>
-        <ul class="bullets">
-          <li>بررسی و تصویب پیش‌نویس اساسنامه</li>
-          <li>تعیین روزنامه کثیرالانتشار</li>
-          <li>تعیین ورودیه و حق عضویت</li>
-          <li>انتخاب اعضای اصلی هیئت‌مدیره و بازرسان</li>
-          <li>سایر موارد</li>
-        </ul>
-      </section>
+                <p>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path></svg>
+                    <span>۰۲۱-۸۶۰۸۳۰۰۱</span>
+                </p>
 
-      <section class="notes">
-        <ul class="asterisk">
-          <li>همراه داشتن اصل کارت ملی، اصل کارت عضویت یا بازرگانی معتبر اتاق تهران و مجوز فعالیت در روز مجمع الزامی است.</li>
-          <li>نمایندگان اشخاص حقوقی می‌بایست مدیرعامل یا یکی از اعضا هیئت مدیره موسسه متبوع باشند و در روز مجمع، روزنامه رسمی آخرین تغییرات هیئت مدیره و اصل معرفی نامه با مهر و سربرگ شرکت را به همراه داشته باشند.</li>
-        </ul>
-      </section>
+                 <p>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path></svg>
+                    <a href="tel:+982158179401">۰۲۱-۵۸۱۷۹۴۰۱ (جهت تماس کلیک کنید)</a>
+                </p>
 
-      <footer class="signoff">
-        <p class="role">نماینده هیئت موسسین</p>
-        <p class="org">«انجمن صنایع چای استان تهران»</p>
-        <p class="name">شیخ انصاری</p>
-      </footer>
+                <a href="https://maps.app.goo.gl/HDNDTy4VZ3e969SZ8" target="_blank" class="map-button">
+                    مسیریابی با نقشه گوگل
+                </a>
+            </div>
+        </main>
     </div>
-  </main>
 
 </body>
 </html>
