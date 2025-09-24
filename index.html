@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Push Notifications - ttia.ir</title>
+    <title>Android Push Test - ttia.ir</title>
     
     <!-- OneSignal SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -15,25 +15,18 @@
             margin: 0 auto;
             padding: 20px;
             line-height: 1.6;
-            background: #f5f5f5;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .btn {
             background: #007bff;
             color: white;
             border: none;
             padding: 15px 30px;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
-            margin: 10px 0;
+            font-size: 18px;
+            margin: 10px 5px;
             width: 100%;
-            transition: background 0.3s;
+            box-sizing: border-box;
         }
         .btn:hover {
             background: #0056b3;
@@ -42,274 +35,230 @@
             background: #ccc;
             cursor: not-allowed;
         }
-        .btn.success {
-            background: #28a745;
-        }
         .status {
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 4px;
             margin: 15px 0;
             font-size: 16px;
         }
         .status.success {
             background: #d4edda;
             color: #155724;
-            border-left: 4px solid #28a745;
+            border: 1px solid #c3e6cb;
         }
         .status.error {
             background: #f8d7da;
             color: #721c24;
-            border-left: 4px solid #dc3545;
+            border: 1px solid #f5c6cb;
         }
         .status.info {
             background: #d1ecf1;
             color: #0c5460;
-            border-left: 4px solid #17a2b8;
+            border: 1px solid #bee5eb;
         }
-        .debug {
+        .log {
             background: #f8f9fa;
             border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-        }
-        .steps {
-            background: #e7f3ff;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .step {
-            margin: 10px 0;
+            border-radius: 4px;
             padding: 10px;
-            background: white;
-            border-radius: 6px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🔔 Push Notifications</h1>
-        
-        <div id="status-container">
-            <div class="status info">Welcome! Click the button below to enable notifications.</div>
-        </div>
-        
-        <button id="enable-notifications" class="btn">
-            🔔 Enable Notifications
-        </button>
-        
-        <button id="send-test" class="btn" disabled style="display: none;">
-            📤 Send Test Notification
-        </button>
-        
-        <div class="steps" id="android-help" style="display: none;">
-            <h3>📱 For Android Users:</h3>
-            <div class="step">
-                <strong>Step 1:</strong> Click "Enable Notifications" above
-            </div>
-            <div class="step">
-                <strong>Step 2:</strong> When prompted, select "Allow" 
-            </div>
-            <div class="step">
-                <strong>Step 3:</strong> If nothing happens, check Chrome Settings > Site Settings > Notifications
-            </div>
-        </div>
-        
-        <div class="debug" id="debug-info"></div>
+    <h1>🔔 Android Push Notification Test</h1>
+    
+    <div id="status-container">
+        <div class="status info">Ready to test notifications...</div>
     </div>
     
+    <button id="test-native-btn" class="btn">1. Test Native Browser API</button>
+    <button id="init-onesignal-btn" class="btn">2. Initialize OneSignal</button>
+    <button id="request-permission-btn" class="btn" disabled>3. Request Permission</button>
+    <button id="subscribe-btn" class="btn" disabled>4. Subscribe to OneSignal</button>
+    
+    <h3>Debug Log:</h3>
+    <div id="log-container" class="log"></div>
+    
     <script>
-        let OneSignal = null;
-        let isInitialized = false;
+        let OneSignal;
+        let logContainer = document.getElementById('log-container');
+        let statusContainer = document.getElementById('status-container');
         
-        function updateStatus(message, type = 'info') {
-            const container = document.getElementById('status-container');
-            container.innerHTML = `<div class="status ${type}">${message}</div>`;
+        function log(message) {
+            console.log(message);
+            logContainer.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+            logContainer.scrollTop = logContainer.scrollHeight;
         }
         
-        function updateDebug(info) {
-            document.getElementById('debug-info').innerHTML = info;
+        function showStatus(message, type = 'info') {
+            statusContainer.innerHTML = `<div class="status ${type}">${message}</div>`;
         }
         
-        function showAndroidHelp() {
-            document.getElementById('android-help').style.display = 'block';
-        }
-        
-        // Initialize OneSignal when page loads
-        function initializeOneSignal() {
-            return new Promise((resolve, reject) => {
-                window.OneSignalDeferred = window.OneSignalDeferred || [];
-                OneSignalDeferred.push(async function(OneSignalInstance) {
-                    try {
-                        OneSignal = OneSignalInstance;
-                        
-                        // Initialize with minimal configuration
-                        await OneSignal.init({
-                            appId: "a1ca9082-d833-4630-972e-e83578a1ef79",
-                            allowLocalhostAsSecureOrigin: true,
-                            autoResubscribe: true,
-                            // Disable OneSignal's default prompts since we're handling it ourselves
-                            notifyButton: { enable: false },
-                            welcomeNotification: { disable: true },
-                            autoRegister: false, // We'll handle registration manually
-                        });
-                        
-                        isInitialized = true;
-                        console.log('OneSignal initialized successfully');
-                        resolve();
-                        
-                    } catch (error) {
-                        console.error('OneSignal initialization failed:', error);
-                        reject(error);
-                    }
-                });
-            });
-        }
-        
-        // Handle notification enabling
-        async function enableNotifications() {
-            const button = document.getElementById('enable-notifications');
-            button.disabled = true;
-            button.textContent = '🔄 Setting up...';
+        // Step 1: Test native browser API
+        document.getElementById('test-native-btn').addEventListener('click', async function() {
+            log('Testing native browser APIs...');
+            
+            // Check basic support
+            log('Push API supported: ' + !!window.PushManager);
+            log('Service Worker supported: ' + !!navigator.serviceWorker);
+            log('Notification API supported: ' + !!window.Notification);
+            log('Current permission: ' + Notification.permission);
+            
+            if (!window.PushManager || !navigator.serviceWorker || !window.Notification) {
+                showStatus('❌ Browser does not support required APIs', 'error');
+                return;
+            }
             
             try {
-                if (!isInitialized) {
-                    updateStatus('🔄 Initializing notification system...', 'info');
-                    await initializeOneSignal();
-                }
-                
-                updateStatus('🔄 Requesting notification permission...', 'info');
-                
-                // Check if push is supported
-                if (!OneSignal.Notifications.isPushSupported()) {
-                    throw new Error('Push notifications are not supported on this device');
-                }
-                
-                // Request permission
-                const permission = await OneSignal.Notifications.requestPermissionAsync();
-                console.log('Permission result:', permission);
+                // Test direct notification permission request
+                const permission = await Notification.requestPermission();
+                log('Native permission result: ' + permission);
                 
                 if (permission === 'granted') {
-                    updateStatus('✅ Permission granted! Setting up subscription...', 'success');
+                    showStatus('✅ Native browser permission granted!', 'success');
+                    document.getElementById('init-onesignal-btn').disabled = false;
                     
-                    // Opt the user in
-                    await OneSignal.User.PushSubscription.optInAsync();
-                    console.log('User opted in successfully');
-                    
-                    // Verify subscription
-                    setTimeout(async () => {
-                        try {
-                            const isOptedIn = await OneSignal.User.PushSubscription.getOptedInAsync();
-                            const subscriptionId = await OneSignal.User.PushSubscription.getIdAsync();
+                    // Test showing a basic notification via Service Worker (required on Android)
+                    try {
+                        if ('serviceWorker' in navigator) {
+                            // Register a minimal service worker for testing
+                            const registration = await navigator.serviceWorker.register(
+                                'data:application/javascript,' + encodeURIComponent(`
+                                    self.addEventListener('notificationclick', function(event) {
+                                        event.notification.close();
+                                        event.waitUntil(clients.openWindow('/'));
+                                    });
+                                `)
+                            );
                             
-                            console.log('Subscription check - OptedIn:', isOptedIn, 'ID:', subscriptionId);
+                            await registration.showNotification('Test Notification', {
+                                body: 'If you see this, notifications work correctly!',
+                                icon: '/favicon.ico',
+                                tag: 'test-notification'
+                            });
                             
-                            if (isOptedIn && subscriptionId) {
-                                updateStatus('🎉 Notifications enabled successfully! You can now receive push notifications.', 'success');
-                                button.textContent = '✅ Notifications Enabled';
-                                button.className = 'btn success';
-                                document.getElementById('send-test').style.display = 'block';
-                                document.getElementById('send-test').disabled = false;
-                            } else {
-                                throw new Error('Subscription was not completed properly');
-                            }
-                        } catch (verifyError) {
-                            console.error('Verification error:', verifyError);
-                            updateStatus('⚠️ Subscription incomplete. Please try again or check your browser settings.', 'error');
-                            resetButton();
+                            log('Successfully showed notification via Service Worker');
                         }
-                        updateDebugInfo();
-                    }, 2000);
-                    
-                } else if (permission === 'denied') {
-                    updateStatus('❌ Notifications blocked. Please enable them in your browser settings and refresh the page.', 'error');
-                    showAndroidHelp();
-                    resetButton();
+                    } catch (swError) {
+                        log('Service Worker notification error: ' + swError.message);
+                        // This is expected - we'll let OneSignal handle the service worker
+                    }
                 } else {
-                    updateStatus('❌ Permission request was cancelled. Please try again.', 'error');
-                    resetButton();
+                    showStatus('❌ Native permission denied', 'error');
                 }
-                
             } catch (error) {
-                console.error('Enable notifications error:', error);
-                updateStatus(`❌ Error: ${error.message}`, 'error');
-                showAndroidHelp();
-                resetButton();
+                log('Native API error: ' + error.message);
+                showStatus('❌ Error with native API: ' + error.message, 'error');
             }
-        }
+        });
         
-        function resetButton() {
-            const button = document.getElementById('enable-notifications');
-            button.disabled = false;
-            button.textContent = '🔔 Enable Notifications';
-            button.className = 'btn';
-        }
-        
-        // Send test notification (this would typically be done from your backend)
-        async function sendTestNotification() {
-            try {
-                updateStatus('📤 Test notification feature coming soon! You should receive notifications when sent from the server.', 'info');
-                // In a real implementation, you would call your backend API here
-                // which would use OneSignal's REST API to send notifications
-            } catch (error) {
-                updateStatus(`❌ Test failed: ${error.message}`, 'error');
-            }
-        }
-        
-        // Update debug information
-        function updateDebugInfo() {
-            const userAgent = navigator.userAgent;
-            const isAndroid = /Android/.test(userAgent);
-            const isChrome = /Chrome/.test(userAgent);
+        // Step 2: Initialize OneSignal
+        document.getElementById('init-onesignal-btn').addEventListener('click', function() {
+            log('Initializing OneSignal...');
+            showStatus('🔄 Initializing OneSignal...', 'info');
             
-            let debugInfo = `
-Device: ${isAndroid ? 'Android' : 'Other'} | Browser: ${isChrome ? 'Chrome' : 'Other'}
-HTTPS: ${location.protocol === 'https:'}
-Push API: ${!!window.PushManager}
-Service Worker: ${!!navigator.serviceWorker}
-Notification API: ${!!window.Notification}
-Current Permission: ${Notification.permission}
-OneSignal Initialized: ${isInitialized}
-            `;
-            
-            if (OneSignal && isInitialized) {
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+            OneSignalDeferred.push(async function(OneSignalInstance) {
                 try {
-                    debugInfo += `
-OneSignal Push Supported: ${OneSignal.Notifications.isPushSupported()}
-                    `;
-                } catch (e) {
-                    debugInfo += `
-OneSignal Error: ${e.message}
-                    `;
+                    OneSignal = OneSignalInstance;
+                    
+                    await OneSignal.init({
+                        appId: "a1ca9082-d833-4630-972e-e83578a1ef79",
+                        allowLocalhostAsSecureOrigin: true,
+                    });
+                    
+                    log('OneSignal initialized successfully');
+                    
+                    // Check OneSignal status
+                    const isPushSupported = OneSignal.Notifications.isPushSupported();
+                    const currentPermission = await OneSignal.Notifications.getPermissionAsync();
+                    
+                    log('OneSignal push supported: ' + isPushSupported);
+                    log('OneSignal current permission: ' + currentPermission);
+                    
+                    showStatus('✅ OneSignal initialized successfully!', 'success');
+                    document.getElementById('request-permission-btn').disabled = false;
+                    
+                } catch (error) {
+                    log('OneSignal initialization error: ' + error.message);
+                    showStatus('❌ OneSignal initialization failed: ' + error.message, 'error');
                 }
-            }
-            
-            updateDebug(debugInfo);
-        }
-        
-        // Event listeners
-        document.getElementById('enable-notifications').addEventListener('click', enableNotifications);
-        document.getElementById('send-test').addEventListener('click', sendTestNotification);
-        
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            updateDebugInfo();
-            
-            // Auto-initialize OneSignal in the background
-            initializeOneSignal().catch(error => {
-                console.error('Background initialization failed:', error);
             });
         });
         
-        // Show Android help for Android devices
-        if (/Android/.test(navigator.userAgent)) {
-            setTimeout(() => {
-                showAndroidHelp();
-            }, 1000);
-        }
+        // Step 3: Request OneSignal Permission
+        document.getElementById('request-permission-btn').addEventListener('click', async function() {
+            if (!OneSignal) {
+                showStatus('❌ OneSignal not initialized', 'error');
+                return;
+            }
+            
+            try {
+                log('Requesting OneSignal permission...');
+                showStatus('🔄 Requesting permission...', 'info');
+                
+                const permission = await OneSignal.Notifications.requestPermissionAsync();
+                log('OneSignal permission result: ' + permission);
+                
+                if (permission === 'granted') {
+                    showStatus('✅ OneSignal permission granted!', 'success');
+                    document.getElementById('subscribe-btn').disabled = false;
+                } else {
+                    showStatus('❌ OneSignal permission denied', 'error');
+                }
+                
+            } catch (error) {
+                log('OneSignal permission error: ' + error.message);
+                showStatus('❌ Permission request failed: ' + error.message, 'error');
+            }
+        });
+        
+        // Step 4: Subscribe to OneSignal
+        document.getElementById('subscribe-btn').addEventListener('click', async function() {
+            if (!OneSignal) {
+                showStatus('❌ OneSignal not initialized', 'error');
+                return;
+            }
+            
+            try {
+                log('Subscribing to OneSignal...');
+                showStatus('🔄 Subscribing...', 'info');
+                
+                await OneSignal.User.PushSubscription.optInAsync();
+                log('Successfully opted in to OneSignal');
+                
+                // Wait a moment and check status
+                setTimeout(async () => {
+                    const isOptedIn = await OneSignal.User.PushSubscription.getOptedInAsync();
+                    const subscriptionId = await OneSignal.User.PushSubscription.getIdAsync();
+                    
+                    log('Is opted in: ' + isOptedIn);
+                    log('Subscription ID: ' + (subscriptionId || 'None'));
+                    
+                    if (isOptedIn && subscriptionId) {
+                        showStatus('🎉 Successfully subscribed! Subscription ID: ' + subscriptionId, 'success');
+                    } else {
+                        showStatus('⚠️ Subscription incomplete', 'error');
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                log('OneSignal subscription error: ' + error.message);
+                showStatus('❌ Subscription failed: ' + error.message, 'error');
+            }
+        });
+        
+        // Initial setup
+        log('Page loaded. Ready to test.');
+        log('User Agent: ' + navigator.userAgent);
+        log('Location: ' + location.href);
+        log('Protocol: ' + location.protocol);
+        
     </script>
 </body>
 </html>
