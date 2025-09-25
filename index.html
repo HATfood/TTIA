@@ -224,7 +224,13 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
             color: #fff;
         }
-
+.map-iframe {
+    width: 100%; /* عرض کامل کارت */
+    height: 300px; /* ارتفاع مناسب */
+    border: none; /* حذف حاشیه پیش‌فرض */
+    border-radius: 12px; /* گرد کردن گوشه‌ها */
+    margin-top: 20px; /* فاصله از بالا */
+}
         /* Responsive Design */
         @media (max-width: 992px) {
             main {
@@ -287,6 +293,7 @@
 #closePromptBtn:hover {
     opacity: 1;
 }
+
         
     </style>
 </head>
@@ -337,10 +344,15 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path></svg>
                     <a href="tel:+982158179401">۰۲۱-۵۸۱۷۹۴۰۱ (جهت تماس کلیک کنید)</a>
                 </p>
-
+                <!-- =================================================================== -->
+<iframe class="map-iframe" title="map-iframe" src="https://neshan.org/maps/iframe/places/_bvZx8pxi1ss#c35.740-51.418-16z-0p/35.73985872155255/51.41556660704555" allowFullScreen loading="lazy"></iframe>
                 <a href="https://maps.app.goo.gl/HDNDTy4VZ3e969SZ8" target="_blank" class="map-button">
                     مسیریابی با نقشه گوگل
                 </a>
+                    <a href="https://nshn.ir/_bvZx8pxi1ss" target="_blank" class="map-button">
+        مسیریابی با نشان
+    </a>
+                
             </div>
         </main>
     </div>
